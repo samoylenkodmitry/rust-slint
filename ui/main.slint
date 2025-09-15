@@ -1,0 +1,101 @@
+import { LineEdit, TextEdit, Button } from "std-widgets.slint";
+
+export struct Task {
+    id: int,
+    title: string,
+    current: bool,
+}
+
+export component AboutWindow inherits Window {
+    width: 300px;
+    height: 200px;
+    title: "About";
+    VerticalLayout {
+        spacing: 10px;
+        alignment: center;
+        Image { source: @image-url("../assets/slint-logo.png"); }
+        Text { text: "Task Manager"; }
+    }
+}
+
+export component MainWindow inherits Window {
+    preferred-width: 800px;
+    preferred-height: 600px;
+    min-width: 600px;
+    min-height: 400px;
+    title: "Task Manager";
+
+    callback about();
+    callback save_detail();
+    callback set_current();
+    callback select_task(int);
+    callback sort_changed(int);
+
+    in-out property <int> sort_order;
+    // 0 = title, 1 = date
+
+    in-out property <int> selected_index;
+    in property <[Task]> tasks;
+
+    in-out property <bool> loading;
+
+    in-out property <string> detail_title;
+    in-out property <string> detail_created;
+    in-out property <string> detail_tracker;
+    in-out property <string> detail_branch;
+    in-out property <string> detail_review;
+    in-out property <string> detail_commit;
+    in-out property <string> detail_notes;
+
+    VerticalLayout {
+        spacing: 4px;
+        HorizontalLayout {
+            spacing: 4px;
+            Text { text: "Sort:"; vertical-alignment: center; }
+            Button { text: "Title"; clicked => { root.sort_order = 0; root.sort_changed(0); } }
+            Button { text: "Date"; clicked => { root.sort_order = 1; root.sort_changed(1); } }
+            Rectangle { horizontal-stretch: 1; }
+            Button { text: "About"; clicked => { root.about(); } }
+        }
+        HorizontalLayout {
+            spacing: 10px;
+            VerticalLayout {
+                width: 200px;
+                for task[i] in tasks: Rectangle {
+                    width: 200px;
+                    height: 30px;
+                    background: task.current ? #e0f0ff : #ffffff;
+                    Text { text: task.title; y: 4px; x: 4px; }
+                    TouchArea { clicked => { root.selected_index = i; root.select_task(i); } }
+                }
+            }
+            Flickable {
+                vertical-stretch: 1;
+    VerticalLayout {
+                    spacing: 8px;
+                    Text { text: "Title"; }
+                    LineEdit { text: root.detail_title; }
+                    Text { text: "Created"; }
+                    LineEdit { enabled: false; text: root.detail_created; }
+                    Text { text: "Tracker"; }
+                    LineEdit { text: root.detail_tracker; }
+                    Text { text: "Branch"; }
+                    LineEdit { text: root.detail_branch; }
+                    Text { text: "Review"; }
+                    LineEdit { text: root.detail_review; }
+                    Text { text: "Commit"; }
+                    TextEdit { height: 60px; text: root.detail_commit; }
+                    Text { text: "Notes"; }
+                    TextEdit { height: 120px; text: root.detail_notes; }
+                    HorizontalLayout {
+                        spacing: 8px;
+                        Button { text: "Save"; clicked => root.save_detail(); }
+                        Button { text: "Set Current"; clicked => root.set_current(); }
+                    }
+                    Text { text: "Loading..."; visible: root.loading; }
+                }
+            }
+        }
+    }
+}
+
