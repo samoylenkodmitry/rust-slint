@@ -18,18 +18,62 @@ export component AboutWindow inherits Window {
     }
 }
 
+component TaskListItem inherits Rectangle {
+    in property <int> index;
+    in property <string> title;
+    in property <bool> selected;
+    in property <bool> current;
+    callback activate(int);
+
+    height: 48px;
+    border-radius: 12px;
+    border-width: selected ? 1px : 0px;
+    border-color: #3b82f6;
+    background: selected ? #eef2ff : (current ? #f0f9ff : #ffffff);
+
+    HorizontalLayout {
+        padding: 12px;
+        spacing: 8px;
+        vertical-stretch: 1;
+        Text {
+            text: title;
+            horizontal-stretch: 1;
+            vertical-alignment: center;
+            color: #1f2937;
+            font-size: 14px;
+        }
+        Rectangle {
+            visible: current;
+            border-radius: 8px;
+            background: #dbeafe;
+            HorizontalLayout {
+                padding: 4px;
+                Text {
+                    text: "CURRENT";
+                    color: #1d4ed8;
+                    font-size: 11px;
+                    vertical-alignment: center;
+                }
+            }
+        }
+    }
+    TouchArea { clicked => root.activate(root.index); }
+}
+
 export component MainWindow inherits Window {
-    preferred-width: 800px;
-    preferred-height: 600px;
-    min-width: 600px;
-    min-height: 400px;
+    preferred-width: 900px;
+    preferred-height: 620px;
+    min-width: 640px;
+    min-height: 420px;
     title: "Task Manager";
+    background: #f4f6fb;
 
     callback about();
     callback save_detail();
     callback set_current();
     callback select_task(int);
     callback sort_changed(int);
+    callback add_task(string);
 
     in-out property <int> sort_order;
     // 0 = title, 1 = date
@@ -38,6 +82,7 @@ export component MainWindow inherits Window {
     in property <[Task]> tasks;
 
     in-out property <bool> loading;
+    in-out property <bool> has_tasks;
 
     in-out property <string> detail_title;
     in-out property <string> detail_created;
@@ -46,53 +91,177 @@ export component MainWindow inherits Window {
     in-out property <string> detail_review;
     in-out property <string> detail_commit;
     in-out property <string> detail_notes;
+    in-out property <string> new_task_title;
 
     VerticalLayout {
-        spacing: 4px;
-        HorizontalLayout {
-            spacing: 4px;
-            Text { text: "Sort:"; vertical-alignment: center; }
-            Button { text: "Title"; clicked => { root.sort_order = 0; root.sort_changed(0); } }
-            Button { text: "Date"; clicked => { root.sort_order = 1; root.sort_changed(1); } }
-            Rectangle { horizontal-stretch: 1; }
-            Button { text: "About"; clicked => { root.about(); } }
-        }
-        HorizontalLayout {
-            spacing: 10px;
-            VerticalLayout {
-                width: 200px;
-                for task[i] in tasks: Rectangle {
-                    width: 200px;
-                    height: 30px;
-                    background: task.current ? #e0f0ff : #ffffff;
-                    Text { text: task.title; y: 4px; x: 4px; }
-                    TouchArea { clicked => { root.selected_index = i; root.select_task(i); } }
+        spacing: 16px;
+        padding: 20px;
+
+        Rectangle {
+            height: 76px;
+            border-radius: 18px;
+            background: #0f172a;
+            HorizontalLayout {
+                padding: 20px;
+                spacing: 14px;
+                Text {
+                    text: "Task Manager";
+                    color: #ffffff;
+                    font-size: 24px;
+                    horizontal-stretch: 1;
+                    vertical-alignment: center;
+                }
+                HorizontalLayout {
+                    spacing: 8px;
+                    Text {
+                        text: "Sort by:";
+                        color: #cbd5f5;
+                        vertical-alignment: center;
+                    }
+                    Button {
+                        text: root.sort_order == 0 ? "Title ✓" : "Title";
+                        clicked => { root.sort_order = 0; root.sort_changed(0); }
+                    }
+                    Button {
+                        text: root.sort_order == 1 ? "Created ✓" : "Created";
+                        clicked => { root.sort_order = 1; root.sort_changed(1); }
+                    }
+                }
+                Button {
+                    text: "About";
+                    clicked => { root.about(); }
                 }
             }
-            Flickable {
-                vertical-stretch: 1;
-    VerticalLayout {
-                    spacing: 8px;
-                    Text { text: "Title"; }
-                    LineEdit { text: root.detail_title; }
-                    Text { text: "Created"; }
-                    LineEdit { enabled: false; text: root.detail_created; }
-                    Text { text: "Tracker"; }
-                    LineEdit { text: root.detail_tracker; }
-                    Text { text: "Branch"; }
-                    LineEdit { text: root.detail_branch; }
-                    Text { text: "Review"; }
-                    LineEdit { text: root.detail_review; }
-                    Text { text: "Commit"; }
-                    TextEdit { height: 60px; text: root.detail_commit; }
-                    Text { text: "Notes"; }
-                    TextEdit { height: 120px; text: root.detail_notes; }
-                    HorizontalLayout {
-                        spacing: 8px;
-                        Button { text: "Save"; clicked => root.save_detail(); }
-                        Button { text: "Set Current"; clicked => root.set_current(); }
+        }
+
+        HorizontalLayout {
+            spacing: 20px;
+            vertical-stretch: 1;
+
+            Rectangle {
+                preferred-width: 260px;
+                min-width: 220px;
+                border-radius: 16px;
+                border-color: #d9e0ec;
+                border-width: 1px;
+                background: #ffffff;
+
+                VerticalLayout {
+                    padding: 16px;
+                    spacing: 12px;
+                    Text {
+                        text: "Tasks";
+                        font-size: 18px;
+                        color: #0f172a;
                     }
-                    Text { text: "Loading..."; visible: root.loading; }
+                    Rectangle { height: 1px; background: #e5e7eb; }
+                    if !root.has_tasks : Text {
+                        text: "No tasks yet.\nCreate one to get started.";
+                        color: #6b7280;
+                    }
+                    Flickable {
+                        vertical-stretch: 1;
+                        VerticalLayout {
+                            spacing: 8px;
+                            for task[i] in tasks: TaskListItem {
+                                index: i;
+                                title: task.title;
+                                current: task.current;
+                                selected: root.selected_index == i;
+                                activate => {
+                                    root.selected_index = i;
+                                    root.select_task(i);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            Rectangle {
+                horizontal-stretch: 1;
+                border-radius: 16px;
+                border-color: #d9e0ec;
+                border-width: 1px;
+                background: #ffffff;
+
+                VerticalLayout {
+                    padding: 20px;
+                    spacing: 16px;
+
+                    Text {
+                        text: "Create a new task";
+                        font-size: 16px;
+                        color: #0f172a;
+                    }
+                    HorizontalLayout {
+                        spacing: 10px;
+                        LineEdit {
+                            text <=> root.new_task_title;
+                            placeholder-text: "Task title";
+                            horizontal-stretch: 1;
+                        }
+                        Button {
+                            text: "Add Task";
+                            enabled: root.new_task_title != "";
+                            clicked => { root.add_task(root.new_task_title); }
+                        }
+                    }
+                    Rectangle { height: 1px; background: #e5e7eb; }
+
+                    Text {
+                        text: "Task details";
+                        font-size: 16px;
+                        color: #0f172a;
+                    }
+                    Text {
+                        text: "Select a task from the list\nto view and edit its details.";
+                        visible: root.selected_index < 0;
+                        color: #6b7280;
+                    }
+
+                    Flickable {
+                        vertical-stretch: 1;
+
+                        VerticalLayout {
+                            spacing: 10px;
+                            visible: root.selected_index >= 0;
+
+                            Text { text: "Title"; }
+                            LineEdit { text <=> root.detail_title; enabled: !root.loading; }
+
+                            Text { text: "Created"; }
+                            LineEdit { enabled: false; text <=> root.detail_created; }
+
+                            Text { text: "Tracker"; }
+                            LineEdit { text <=> root.detail_tracker; enabled: !root.loading; }
+
+                            Text { text: "Branch"; }
+                            LineEdit { text <=> root.detail_branch; enabled: !root.loading; }
+
+                            Text { text: "Review"; }
+                            LineEdit { text <=> root.detail_review; enabled: !root.loading; }
+
+                            Text { text: "Commit"; }
+                            TextEdit { height: 80px; text <=> root.detail_commit; enabled: !root.loading; }
+
+                            Text { text: "Notes"; }
+                            TextEdit { height: 140px; text <=> root.detail_notes; enabled: !root.loading; }
+
+                            HorizontalLayout {
+                                spacing: 12px;
+                                Button { text: "Save"; clicked => root.save_detail(); enabled: !root.loading; }
+                                Button { text: "Set Current"; clicked => root.set_current(); enabled: !root.loading; }
+                            }
+                        }
+                    }
+
+                    Text {
+                        text: "Loading task details...";
+                        visible: root.loading;
+                        color: #2563eb;
+                        font-size: 12px;
+                    }
                 }
             }
         }
