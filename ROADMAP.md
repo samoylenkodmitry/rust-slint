@@ -1,12 +1,12 @@
 # Roadmap
 
-This roadmap captures a forward-looking plan for the Rust Slint Task Manager. It pairs an honest assessment of the current state with a staged set of improvements designed to make the application a reliable companion for day-to-day development work.
+This roadmap sketches out how the Rust Slint Task Manager can grow from a handy local tracker into a polished productivity companion. It pairs an honest assessment of today with staged initiatives that build confidence, unlock new workflows, and prepare for distribution.
 
 ## Current Assessment
 
 ### Strengths
 - **Solid foundations:** A clear Slint UI and a lightweight SQLite schema already support the core workflow of creating, editing, and focusing on tasks.
-- **Responsive interactions:** The detail pane uses background loading and progress feedback to keep the interface responsive even when the database query is slow.
+- **Responsive interactions:** The detail pane fetches data on a background thread and exposes loading states to keep the interface fluid.
 - **Work-log data model:** Each "set current" action is timestamped, providing data that can later power focus analytics.
 
 ### Key Gaps
@@ -16,10 +16,10 @@ This roadmap captures a forward-looking plan for the Rust Slint Task Manager. It
 - **Testing and modularity:** Application logic sits in `main.rs` without unit tests or modules, making it hard to extend safely.
 
 ## Strategic Themes
-1. **Polish the fundamentals** – improve reliability, validation, and the editing experience.
-2. **Unlock productivity features** – add planning aids such as prioritisation, reminders, and quick navigation.
-3. **Leverage collected data** – transform the existing work-log entries into insights and reporting.
-4. **Prepare for distribution** – package the app so contributors and teammates can try it without a Rust toolchain.
+1. **Polish the fundamentals** – Improve reliability, validation, and the editing experience.
+2. **Unlock productivity features** – Add planning aids such as prioritisation, reminders, and quick navigation.
+3. **Leverage collected data** – Transform the existing work-log entries into insights and reporting.
+4. **Prepare for distribution** – Package the app so contributors and teammates can try it without a Rust toolchain.
 
 ## Near-Term Goals (v0.2 – Foundations)
 - Introduce structured error handling (`anyhow`, `thiserror`) and surface failures to the UI.
@@ -43,11 +43,11 @@ This roadmap captures a forward-looking plan for the Rust Slint Task Manager. It
 - Offer extension hooks (command palette, plugin interface) so advanced users can script custom workflows.
 
 ## Technical Improvement Backlog
-- **Refactor UI bindings:** Replace manual property synchronization with view-model structs to reduce boilerplate and keep logic testable.
+- **Refactor UI bindings:** Replace manual property synchronisation with view-model structs to reduce boilerplate and keep logic testable.
 - **Performance profiling:** Benchmark load times for large task lists and add pagination or incremental loading if required.
 - **Accessibility:** Audit contrast ratios, provide larger text presets, and add keyboard focus indicators to meet accessibility guidelines.
 - **Localization:** Externalise user-facing strings and add language selection support.
-- **Documentation:** Expand README with architecture diagrams and contribute setup instructions for contributors on each platform.
+- **Documentation:** Expand README with architecture diagrams and contributor setup instructions for each platform.
 
 ## Measuring Success
 - Track adoption metrics such as the number of tasks created, retention of the `current` marker, and the frequency of work-log usage (via opt-in telemetry or manual reporting).
