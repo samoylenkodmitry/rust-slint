@@ -1,9 +1,10 @@
+
 # Rust Slint Task Manager
 
 
 A desktop companion for software projects built with [Slint](https://slint.dev/) and Rust. The app keeps your backlog close at hand with a polished native UI, rich metadata for every task, and a lightweight focus log so you can see what you are working on.
 
-
+[demo.webm](demo.webm)
 <div align="center">
   <video src="demo.webm" controls style="max-width: 100%; border-radius: 12px;">
     Your browser does not support the video tag.
