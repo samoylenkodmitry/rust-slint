@@ -1,12 +1,15 @@
 # Rust Slint Task Manager
 
+
 A desktop companion for software projects built with [Slint](https://slint.dev/) and Rust. The app keeps your backlog close at hand with a polished native UI, rich metadata for every task, and a lightweight focus log so you can see what you are working on.
+
 
 <div align="center">
   <video src="demo.webm" controls style="max-width: 100%; border-radius: 12px;">
     Your browser does not support the video tag.
   </video>
 </div>
+
 
 ## Overview
 
@@ -51,11 +54,13 @@ The app creates and maintains three SQLite tables the first time it runs:
 
 `tasks.db` is placed beside the executable. Remove the file to reset the application state.
 
+
 ## Getting Started
 
 ### Prerequisites
 
 - [Rust](https://www.rust-lang.org/tools/install) 1.70 or newer
+
 - No extra system dependencies are required because `rusqlite` is compiled with bundled SQLite.
 
 ### Run the application
@@ -64,13 +69,16 @@ The app creates and maintains three SQLite tables the first time it runs:
 cargo run
 ```
 
+
 A sample task is inserted on first launch so you can try the workflow immediately.
 
 ### Build an optimised binary
 
+
 ```bash
 cargo build --release
 ```
+
 
 The optimised executable is available at `target/release/rust-slint` (or with the appropriate platform extension).
 
@@ -100,3 +108,4 @@ Curious about what is next? Dive into [ROADMAP.md](ROADMAP.md) for a staged impr
 ## License
 
 Distributed under the terms of the [MIT License](LICENSE).
+
