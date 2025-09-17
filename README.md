@@ -10,6 +10,7 @@ A desktop companion for software projects built with [Slint](https://slint.dev/)
     Your browser does not support the video tag.
   </video>
 </div>
+[demo.webm](https://github.com/user-attachments/assets/dc92c070-bce8-4961-a7c3-4547bced69cf)
 
 
 ## Overview
